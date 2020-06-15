@@ -16,13 +16,12 @@
 // ?            Aaron Clauson   Isolated the problem in Npgsql connection pooling and workaround is to set MinPoolSize=0 in the connection
 //                              string. Modified to work with connection pooling again.
 // 16 Dec 2007  Aaron Clauson   Added check for dangerous SQL.
-// ============================================================================
 
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Text.RegularExpressions;
-using GB28181.SIPSorcery.Sys;
+using GB28181.Sys;
 using GB28181.Logger4Net;
 //using Npgsql;
 //using NpgsqlTypes;
@@ -31,7 +30,7 @@ using GB28181.Logger4Net;
 using NUnit.Framework;
 #endif
 
-namespace GB28181.SIPSorcery.Persistence
+namespace GB28181.Persistence
 {
     public class StorageLayer
 	{

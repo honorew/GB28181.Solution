@@ -1,13 +1,13 @@
 ﻿using GB28181.Logger4Net;
-using GB28181.SIPSorcery.Net;
-using GB28181.SIPSorcery.Net.RTP;
-using GB28181.SIPSorcery.Servers.SIPMonitor;
-using GB28181.SIPSorcery.SIP;
-using GB28181.SIPSorcery.SIP.App;
-using GB28181.SIPSorcery.Sys;
-using GB28181.SIPSorcery.Sys.Config;
-using GB28181.SIPSorcery.Sys.Model;
-using GB28181.SIPSorcery.Sys.XML;
+using GB28181.Net;
+using GB28181.Net.RTP;
+using GB28181.Servers.SIPMonitor;
+using GB28181;
+using GB28181.App;
+using GB28181.Sys;
+using GB28181.Config;
+using GB28181.Sys.Model;
+using GB28181.Sys.XML;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -18,10 +18,10 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using System.Threading;
-using GB28181.SIPSorcery.Sys.Cache;
-using System.Threading.Tasks;
+using GB28181.Cache;
+using SIPSorcery.SIP;
 
-namespace GB28181.SIPSorcery.Servers.SIPMessage
+namespace GB28181.Servers.SIPMessage
 {
 
     public struct MonitorKey
@@ -54,7 +54,7 @@ namespace GB28181.SIPSorcery.Servers.SIPMessage
         private int MEDIA_PORT_START = 10000;
         private int MEDIA_PORT_END = 12000;
         private ISIPRegistrarCore _registrarCore;
-        private ISipAccountStorage _sipAccountStorage;
+        private ISipStorage _sipAccountStorage;
         private SIPAccount _LocalSipAccount;
         private ServiceStatus _serviceState;
         private SIPRequest _ackRequest;
@@ -180,7 +180,7 @@ namespace GB28181.SIPSorcery.Servers.SIPMessage
         public SIPMessageCore(
             ISIPRegistrarCore sipRegistrarCore,
             ISIPTransport sipTransport,
-            ISipAccountStorage sipAccountStorage,
+            ISipStorage sipAccountStorage,
             IMemoCache<Camera> cameraCache)
         {
             _registrarCore = sipRegistrarCore;
@@ -210,8 +210,8 @@ namespace GB28181.SIPSorcery.Servers.SIPMessage
             {
                 var ipaddress = IPAddress.Parse(camera.IPAddress);
                 _nodeMonitorService.TryAdd(camera.DeviceID, new SIPMonitorCore(this, _transport, sipAccountStorage: _sipAccountStorage)
-                {
-                    RemoteEndPoint = new SIPEndPoint(SIPProtocolsEnum.udp, ipaddress, camera.Port),
+                { 
+                    RemoteEndPoint = new SIPEndPoint(SIPProtocolsEnum.udp, new IPEndPoint(ipaddress, camera.Port)),
                     DeviceId = camera.DeviceID
                 });
                 //logger.Debug("nodeMonitorService divces counts: " + _nodeMonitorService.Count);
@@ -587,6 +587,7 @@ namespace GB28181.SIPSorcery.Servers.SIPMessage
         /// <param name="localEP">本地终结点</param>
         /// <param name="remoteEP">远程终结点</param>
         /// <param name="response">sip响应</param>
+
         public void AddMessageResponse(SIPEndPoint localEP, SIPEndPoint remoteEP, SIPResponse response)
         {
             if (response == null)
@@ -641,13 +642,13 @@ namespace GB28181.SIPSorcery.Servers.SIPMessage
                     case SIPResponseStatusCodesEnum.InternalServerError:    //服务器内部错误
                     case SIPResponseStatusCodesEnum.RequestTerminated:      //请求终止
                     case SIPResponseStatusCodesEnum.CallLegTransactionDoesNotExist: //呼叫/事务不存在
-                        OnResponseCodeReceived(response.Status, "对方国标平台返回状态【失败】", remoteEP);
+                        OnResponseCodeReceived?.Invoke(response.Status, "对方国标平台返回状态【失败】", remoteEP);
                         break;
                     case SIPResponseStatusCodesEnum.Trying:                 //等待处理
-                        OnResponseCodeReceived(response.Status, "对方国标平台返回状态【正在尝试】", remoteEP);
+                        OnResponseCodeReceived?.Invoke(response.Status, "对方国标平台返回状态【正在尝试】", remoteEP);
                         break;
                     default:
-                        OnResponseCodeReceived(response.Status, "对方国标平台返回状态【其他】", remoteEP);
+                        OnResponseCodeReceived?.Invoke(response.Status, "对方国标平台返回状态【其他】", remoteEP);
                         break;
                 }
             }
@@ -1148,7 +1149,7 @@ namespace GB28181.SIPSorcery.Servers.SIPMessage
         {
             string fromTag = CallProperties.CreateNewTag();
             string toTag = CallProperties.CreateNewTag();
-            int cSeq = CallProperties.CreateNewCSeq();
+            int cSeq = CallHelpers.CreateNewCSeq();
             string callId = CallProperties.CreateNewCallId();
 
             SIPURI remoteUri = new SIPURI(remoteSIPId, remoteEndPoint.ToHost(), "");
@@ -1215,7 +1216,7 @@ namespace GB28181.SIPSorcery.Servers.SIPMessage
         private SIPRequest SubscribeCatalog(SIPEndPoint remoteEndPoint, string remoteSIPId)
         {
             string fromTag = CallProperties.CreateNewTag();
-            int cSeq = CallProperties.CreateNewCSeq();
+            int cSeq = CallHelpers.CreateNewCSeq();
             string callId = CallProperties.CreateNewCallId();
 
             SIPURI remoteUri = new SIPURI(remoteSIPId, remoteEndPoint.ToHost(), "");

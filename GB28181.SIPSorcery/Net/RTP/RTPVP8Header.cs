@@ -10,11 +10,10 @@
 //
 // License: 
 // Aaron Clauson
-//-----------------------------------------------------------------------------
 
 using System;
 
-namespace GB28181.SIPSorcery.Net
+namespace GB28181.Net
 {
      /// <summary>
     /// Exmaples of size Payload Header size calculations:

@@ -7,51 +7,26 @@
 // 29 Jan 2014	Aaron Clauson	Created.
 //
 // License: 
-// This software is licensed under the BSD License http://www.opensource.org/licenses/bsd-license.php
+// BSD 3-Clause "New" or "Revised" License, see included LICENSE.md file.
 //
-// Copyright (c) 2014 Aaron Clauson (aaron@sipsorcery.com), SIP Sorcery Pty Ltd, Hobart, Australia (www.sipsorcery.com)
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without modification, are permitted provided that 
-// the following conditions are met:
-//
-// Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer. 
-// Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following 
-// disclaimer in the documentation and/or other materials provided with the distribution. Neither the name of SIP Sorcery Pty Ltd 
-// nor the names of its contributors may be used to endorse or promote products derived from this software without specific 
-// prior written permission. 
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, 
-// BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-// IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, 
-// OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
-// OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
-// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
-// POSSIBILITY OF SUCH DAMAGE.
-//-----------------------------------------------------------------------------
 
-using GB28181.SIPSorcery.Net.RTP;
+using GB28181.Net.RTP;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace GB28181.SIPSorcery.Net
+namespace GB28181.Net
 {
     public class RTPFrame
     {
-        public uint Timestamp;
-        public bool HasMarker;
-        public bool HasBeenProcessed;
+        public uint Timestamp { get; set; }
+        public bool HasMarker { get; set; }
+        public bool HasBeenProcessed { get; set; }
         //public int FrameHeaderLength = 0;   // Some media types, such as VP8 video, have a header at the start of each RTP data payload. It needs to be stripped.
-        public FrameTypesEnum FrameType;
+        public FrameTypesEnum FrameType { get; set; }
 
-        private List<RTPPacket> _packets = new List<RTPPacket>();
-
-        public List<RTPPacket> FramePackets
-        {
-            get { return _packets; }
-        }
+        public List<RTPPacket> FramePackets { get; } = new List<RTPPacket>();
 
         /// <summary>
         /// 包数量
@@ -60,7 +35,7 @@ namespace GB28181.SIPSorcery.Net
         {
             get
             {
-                return _packets.Count;
+                return FramePackets.Count;
             }
         }
 
@@ -68,7 +43,7 @@ namespace GB28181.SIPSorcery.Net
         {
             get
             {
-                var startPacket = _packets.OrderBy(x => x.Header.SequenceNumber).FirstOrDefault();
+                var startPacket = FramePackets.OrderBy(x => x.Header.SequenceNumber).FirstOrDefault();
 
                 if (startPacket != null)
                 {
@@ -85,7 +60,7 @@ namespace GB28181.SIPSorcery.Net
         {
             get
             {
-                var finalPacket = _packets.OrderByDescending(x => x.Header.SequenceNumber).FirstOrDefault();
+                var finalPacket = FramePackets.OrderByDescending(x => x.Header.SequenceNumber).FirstOrDefault();
 
                 if (finalPacket != null)
                 {
@@ -116,7 +91,7 @@ namespace GB28181.SIPSorcery.Net
 
         public void AddRTPPacket(RTPPacket rtpPacket)
         {
-            _packets.Add(rtpPacket);
+            FramePackets.Add(rtpPacket);
 
             //if (HasMarker && FramePayload == null)
             //{
@@ -136,7 +111,7 @@ namespace GB28181.SIPSorcery.Net
                 // The frame has the marker bit set. Check that there are no missing sequence numbers.
                 uint previousSeqNum = 0;
 
-                foreach (var rtpPacket in _packets.OrderBy(x => x.Header.SequenceNumber))
+                foreach (var rtpPacket in FramePackets.OrderBy(x => x.Header.SequenceNumber))
                 {
                     if (previousSeqNum == 0)
                     {
@@ -186,8 +161,8 @@ namespace GB28181.SIPSorcery.Net
 
         public byte[] GetFramePayload()
         {
-            System.IO.MemoryStream buffer = new System.IO.MemoryStream();
-            foreach (var packet in _packets.OrderBy(x => x.Header.SequenceNumber))
+           var buffer = new System.IO.MemoryStream();
+            foreach (var packet in FramePackets.OrderBy(x => x.Header.SequenceNumber))
             {
                 buffer.Write(packet.Payload, 0, packet.Payload.Length);
             }

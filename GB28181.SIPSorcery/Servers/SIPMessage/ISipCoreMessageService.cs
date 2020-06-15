@@ -1,11 +1,12 @@
-﻿using GB28181.SIPSorcery.Net;
-using GB28181.SIPSorcery.Servers.SIPMonitor;
-using GB28181.SIPSorcery.SIP;
-using GB28181.SIPSorcery.Sys.XML;
+﻿using GB28181.Net;
+using GB28181.Servers.SIPMonitor;
+using GB28181;
+using GB28181.Sys.XML;
 using System;
 using System.Collections.Concurrent;
+using SIPSorcery.SIP;
 
-namespace GB28181.SIPSorcery.Servers.SIPMessage
+namespace GB28181.Servers.SIPMessage
 {
     public interface ISipMessageCore
     {

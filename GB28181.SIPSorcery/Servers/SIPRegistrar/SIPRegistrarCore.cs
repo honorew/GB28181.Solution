@@ -12,7 +12,7 @@
 // 22 Nov 2007  Aaron Clauson   Fixed bug where binding refresh was generating a duplicate exception if the uac endpoint changed but the contact did not.
 //
 // License: 
-// This software is licensed under the BSD License http://www.opensource.org/licenses/bsd-license.php
+// BSD 3-Clause "New" or "Revised" License, see included LICENSE.md file.
 //
 // Copyright (c) 2006-2007 Aaron Clauson (aaronc@blueface.ie), Blue Face Ltd, Dublin, Ireland (www.blueface.ie)
 // All rights reserved.
@@ -33,25 +33,26 @@
 // OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 // POSSIBILITY OF SUCH DAMAGE.
-// ============================================================================
 
 using GB28181.Logger4Net;
-using GB28181.SIPSorcery.SIP;
-using GB28181.SIPSorcery.SIP.App;
-using GB28181.SIPSorcery.Sys;
-using GB28181.SIPSorcery.Sys.Cache;
-using GB28181.SIPSorcery.Sys.Config;
-using GB28181.SIPSorcery.Sys.Model;
+using GB28181;
+using GB28181.App;
+using GB28181.Sys;
+using GB28181.Cache;
+using GB28181.Config;
+using GB28181.Sys.Model;
 using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading;
+using SIPSorcery.Sys;
+using SIPSorcery.SIP;
 
 #if UNITTEST
 using NUnit.Framework;
 #endif
 
-namespace GB28181.SIPSorcery.Servers
+namespace GB28181.Servers
 {
     public enum RegisterResultEnum
     {
@@ -132,12 +133,12 @@ namespace GB28181.SIPSorcery.Servers
         private IMemoCache<Camera> _cameraCache = null;
 
         /// <summary>
-        /// 设备注册到DMS
+        /// 锟借备注锟结到DMS
         /// </summary>
         public event RPCDmsRegisterDelegate RPCDmsRegisterReceived;
         public event DeviceAlarmSubscribeDelegate DeviceAlarmSubscribe;
 
-        public SIPRegistrarCore(ISIPTransport sipTransport, ISipAccountStorage sipAccountStorage, IMemoCache<Camera> cameraCache, bool mangleUACContact = true, bool strictRealmHandling = true)
+        public SIPRegistrarCore(ISIPTransport sipTransport, ISipStorage sipAccountStorage, IMemoCache<Camera> cameraCache, bool mangleUACContact = true, bool strictRealmHandling = true)
         {
             _sipTransport = sipTransport;
             m_mangleUACContact = mangleUACContact;

@@ -2,17 +2,17 @@
 using GB28181.Logger4Net;
 using NATS.Client;
 using Newtonsoft.Json;
-using GB28181.SIPSorcery.Servers;
-using GB28181.SIPSorcery.Servers.SIPMessage;
-using GB28181.SIPSorcery.SIP;
-using GB28181.SIPSorcery.Sys;
-using GB28181.SIPSorcery.Sys.XML;
+using GB28181.Servers;
+using GB28181.Servers.SIPMessage;
+using GB28181.Sys;
+using GB28181.Sys.XML;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using GB28181.Service.Protos.AsClient.DeviceManagement;
 using Grpc.Net.Client;
-
+using GB28181.App;
+using SIPSorcery.SIP;
 namespace GB28181.Server.Main
 {
     public class MessageHub
@@ -31,7 +31,7 @@ namespace GB28181.Server.Main
         public Dictionary<string, Catalog> Catalogs { get; } = new Dictionary<string, Catalog>();
         public Dictionary<string, SIPTransaction> GBSIPTransactions { get; } = new Dictionary<string, SIPTransaction>();
        
-        SIPSorcery.SIP.App.SIPAccount _SIPAccount;
+        SIPAccount _SIPAccount;
 
         public MessageHub(ISipMessageCore sipCoreMessageService, ISIPMonitorCore sIPMonitorCore, ISIPRegistrarCore sipRegistrarCore)
         {
@@ -209,12 +209,16 @@ namespace GB28181.Server.Main
                 alm.Detail = alarm.AlarmDescription ?? string.Empty;
                 //alm.DeviceID = alarm.DeviceID;//dms deviceid
                 //alm.DeviceName = alarm.DeviceID;//dms name
+
+                //devicemanagementservice 是预留的服务标识(暂命名为设备管理服务).目前没有这个服务.
+                //需要你的微服务架构中实现一个设备资产以及一个配置管理服务(或者二合一的资源管服务)
+                //以达到两个目的：1、用来为当前GB服务提供启动配置，2、为GB收到注册的设备/平台信息，提供全平台的统一的存储服务.
                 string GBServerChannelAddress = EnvironmentVariables.DeviceManagementServiceAddress ?? "devicemanagementservice:8080";
                 logger.Debug("Device Management Service Address: " + GBServerChannelAddress);
                 var channel = GrpcChannel.ForAddress(GBServerChannelAddress);
-                var client = new Manage.ManageClient(channel);
-                QueryGBDeviceByGBIDsResponse _rep = new QueryGBDeviceByGBIDsResponse();
-                QueryGBDeviceByGBIDsRequest req = new QueryGBDeviceByGBIDsRequest();
+                var client = new DevicesManager.DevicesManagerClient(channel);
+                var _rep = new QueryGBDeviceByGBIDsResponse();
+                var req = new QueryGBDeviceByGBIDsRequest();
                 logger.Debug("OnAlarmReceived Alarm: " + JsonConvert.SerializeObject(alarm));
                 req.GbIds.Add(alarm.DeviceID);
                 _rep = client.QueryGBDeviceByGBIDs(req);
@@ -309,9 +313,12 @@ namespace GB28181.Server.Main
                             }
                         }
                         #endregion
+                        //devicemanagementservice 是预留的服务标识(暂命名为设备管理服务).目前没有这个服务.
+                        //需要你的微服务架构中实现一个设备资产以及一个配置管理服务(或者二合一的资源管服务)
+                        //以达到两个目的：1、用来为当前GB服务提供启动配置，2、为GB收到注册的设备/平台信息，提供全平台的统一的存储服务.
                         string GBServerChannelAddress = EnvironmentVariables.DeviceManagementServiceAddress ?? "devicemanagementservice:8080";
                         var channel = GrpcChannel.ForAddress(GBServerChannelAddress); // ChannelCredentials.Insecure);
-                        var client = new Manage.ManageClient(channel);
+                        var client = new DevicesManager.DevicesManagerClient(channel);
                         QueryGBDeviceByGBIDsResponse rep = new QueryGBDeviceByGBIDsResponse();
                         QueryGBDeviceByGBIDsRequest req = new QueryGBDeviceByGBIDsRequest();
                         req.GbIds.Add(deviceid);
@@ -356,7 +363,7 @@ namespace GB28181.Server.Main
         /// </summary>
         /// <param name="sipTransaction"></param>
         /// <param name="sIPAccount"></param>
-        private void _sipRegistrarCore_RPCDmsRegisterReceived(SIPTransaction sipTransaction, GB28181.SIPSorcery.SIP.App.SIPAccount sIPAccount)
+        private void _sipRegistrarCore_RPCDmsRegisterReceived(SIPTransaction sipTransaction, GB28181.App.SIPAccount sIPAccount)
         {
             try
             {
@@ -401,9 +408,13 @@ namespace GB28181.Server.Main
                 _device.ProtocolType = 0;
                 _device.ShapeType = ShapeType.Dome;
                 //var options = new List<ChannelOption> { new ChannelOption(ChannelOptions.MaxMessageLength, int.MaxValue) };
+                
+                //devicemanagementservice 是预留的服务标识(暂命名为设备管理服务).目前没有这个服务.
+                //需要你的微服务架构中实现一个设备资产以及一个配置管理服务(或者二合一的资源管服务)
+                //以达到两个目的：1、用来为当前GB服务提供启动配置，2、为GB收到注册的设备/平台信息，提供全平台的统一的存储服务.
                 var channel = GrpcChannel.ForAddress(EnvironmentVariables.DeviceManagementServiceAddress ?? "devicemanagementservice:8080"); //, ChannelCredentials.Insecure);
                 logger.Debug("Device Management Service Address: " + (EnvironmentVariables.DeviceManagementServiceAddress ?? "devicemanagementservice:8080"));
-                var client = new Manage.ManageClient(channel);
+                var client = new DevicesManager.DevicesManagerClient(channel);
                 //if (!_sipCoreMessageService.NodeMonitorService.ContainsKey(_device.GBID))
                 //{
                 //    AddDeviceRequest _AddDeviceRequest = new AddDeviceRequest();
@@ -465,9 +476,12 @@ namespace GB28181.Server.Main
             bool tf = false;
             //var options = new List<ChannelOption> { new ChannelOption(ChannelOptions.MaxMessageLength, int.MaxValue) };
             //   Channel channel = new Channel(EnvironmentVariables.DeviceManagementServiceAddress ?? "devicemanagementservice:8080", ChannelCredentials.Insecure);
+            //devicemanagementservice 是预留的服务标识(暂命名为设备管理服务).目前没有这个服务.
+            //需要你的微服务架构中实现一个设备资产以及一个配置管理服务(或者二合一的资源管服务)
+            //以达到两个目的：1、用来为当前GB服务提供启动配置，2、为GB收到注册的设备/平台信息，提供全平台的统一的存储服务.
             var channel = GrpcChannel.ForAddress(EnvironmentVariables.DeviceManagementServiceAddress ?? "devicemanagementservice:8080"); //, ChannelCredentials.Insecure);
             logger.Debug("Device Management Service Address: " + (EnvironmentVariables.DeviceManagementServiceAddress ?? "devicemanagementservice:8080"));
-            var client = new Manage.ManageClient(channel);
+            var client = new DevicesManager.DevicesManagerClient(channel);
             QueryGBDeviceByGBIDsResponse rep = new QueryGBDeviceByGBIDsResponse();
             QueryGBDeviceByGBIDsRequest req = new QueryGBDeviceByGBIDsRequest();
             req.GbIds.Add(deviceid);
@@ -490,8 +504,12 @@ namespace GB28181.Server.Main
 
                 string GBServerChannelAddress = EnvironmentVariables.DeviceManagementServiceAddress ?? "devicemanagementservice:8080";
                 // Channel channel = new Channel(GBServerChannelAddress, ChannelCredentials.Insecure);
+                
+                //devicemanagementservice 是预留的服务标识(暂命名为设备管理服务).目前没有这个服务.
+                //需要你的微服务架构中实现一个设备资产以及一个配置管理服务(或者二合一的资源管服务)
+                //以达到两个目的：1、用来为当前GB服务提供启动配置，2、为GB收到注册的设备/平台信息，提供全平台的统一的存储服务.
                 var channel = GrpcChannel.ForAddress(EnvironmentVariables.DeviceManagementServiceAddress ?? "devicemanagementservice:8080"); //, ChannelCredentials.Insecure);
-                var client = new Manage.ManageClient(channel);
+                var client = new DevicesManager.DevicesManagerClient(channel);
                 QueryGBDeviceByGBIDsResponse rep = new QueryGBDeviceByGBIDsResponse();
                 QueryGBDeviceByGBIDsRequest req = new QueryGBDeviceByGBIDsRequest();
                 req.GbIds.Add(DeviceID);

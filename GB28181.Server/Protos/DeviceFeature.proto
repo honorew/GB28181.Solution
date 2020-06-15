@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+import "Protos/google/api/annotations.proto";
+
+option csharp_namespace = "GB28181.Service.Protos.DeviceFeature";
+
+package GrpcDeviceFeature;
+
+// DeviceFeature
+service DeviceFeature {
+// DeviceStateQuery
+  rpc DeviceStateQuery (DeviceStateQueryRequest) returns (DeviceStateQueryReply) {
+    option (google.api.http) = {
+      post: "/v1/DeviceFeature/DeviceStateQuery"
+      body: "*"
+    };
+  }
+}
+
+// The request message.
+message DeviceStateQueryRequest {
+	string deviceid = 1;
+}
+
+// The response message.
+message DeviceStateQueryReply {
+  Instance DeviceStatus = 1;
+}
+
+// Instance
+message Instance{
+  CommandType CmdType = 1;
+  int32 SN = 2;
+  string DeviceID = 3;
+  string Result = 4;
+  string Online = 5;
+  string Status = 6;
+  string Reason = 7;
+}
+
+// CommandType
+enum CommandType {
+  Unknown = 0;
+  Keepalive = 1;
+  Catalog = 2;
+  Play = 3;
+  Playback = 4;
+  DeviceControl = 5;
+  Alarm = 6;
+  DeviceInfo = 7;
+  DeviceStatus = 8;
+  RecordInfo = 9;
+  Download = 10;
+  ConfigDownload = 11;
+  Broadcast = 12;
+  PresetQuery = 13;
+  MobilePosition = 14;
+  DeviceConfig = 15;
+  MediaStatus = 16;
+}

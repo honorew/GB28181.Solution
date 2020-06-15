@@ -42,17 +42,17 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
  * 
  * v//
  */
-//-----------------------------------------------------------------------------
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using GB28181.SIPSorcery.Sys;
+using GB28181.Sys;
 using GB28181.Logger4Net;
+using SIPSorcery.Sys;
 
-namespace GB28181.SIPSorcery.Net
+namespace GB28181.Net
 {
     public class Mjpeg
     {

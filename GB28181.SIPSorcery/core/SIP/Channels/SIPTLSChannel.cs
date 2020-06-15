@@ -5,47 +5,25 @@
 // 
 // History:
 // 13 Mar 2009	Aaron Clauson	Created.
-//
+// 30 May 2020	Edward Chen     Updated.
 // License: 
-// This software is licensed under the BSD License http://www.opensource.org/licenses/bsd-license.php
+// BSD 3-Clause "New" or "Revised" License, see included LICENSE.md file.
 //
-// Copyright (c) 2006 Aaron Clauson (aaron@sipsorcery.com), SIP Sorcery PTY LTD, Hobart, Australia (www.sipsorcery.com)
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without modification, are permitted provided that 
-// the following conditions are met:
-//
-// Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer. 
-// Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following 
-// disclaimer in the documentation and/or other materials provided with the distribution. Neither the name of SIP Sorcery PTY LTD. 
-// nor the names of its contributors may be used to endorse or promote products derived from this software without specific 
-// prior written permission. 
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, 
-// BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-// IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, 
-// OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
-// OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
-// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
-// POSSIBILITY OF SUCH DAMAGE.
-//-----------------------------------------------------------------------------
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net;
 using System.Net.Security;
-using System.Security.Authentication;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
-using GB28181.SIPSorcery.Sys;
 using GB28181.Logger4Net;
+using GB28181.Sys;
+using SIPSorcery.SIP;
+using SIPSorcery.Sys;
 
-namespace GB28181.SIPSorcery.SIP
+namespace GB28181
 {
     public class SIPTLSChannel : SIPChannel
     {
@@ -474,11 +452,11 @@ namespace GB28181.SIPSorcery.SIP
             ch.ChainPolicy.VerificationFlags = X509VerificationFlags.NoFlag;
             ch.Build(certificate);
             Console.WriteLine("Chain Information");
-            Console.WriteLine("Chain revocation flag: {0}", ch.ChainPolicy.RevocationFlag);
+            Console.WriteLine($"Chain revocation flag: {ch.ChainPolicy.RevocationFlag}");
             Console.WriteLine("Chain revocation mode: {0}", ch.ChainPolicy.RevocationMode);
             Console.WriteLine("Chain verification flag: {0}", ch.ChainPolicy.VerificationFlags);
             Console.WriteLine("Chain verification time: {0}", ch.ChainPolicy.VerificationTime);
-            Console.WriteLine("Chain status length: {0}", ch.ChainStatus.Length);
+            Console.WriteLine($"Chain status length: {ch.ChainStatus.Length}");
             Console.WriteLine("Chain application policy count: {0}", ch.ChainPolicy.ApplicationPolicy.Count);
             Console.WriteLine("Chain certificate policy count: {0} {1}", ch.ChainPolicy.CertificatePolicy.Count, Environment.NewLine);
             //Output chain element information.
@@ -508,28 +486,28 @@ namespace GB28181.SIPSorcery.SIP
 
         private void DisplaySecurityLevel(SslStream stream)
         {
-            logger.Debug(String.Format("Cipher: {0} strength {1}", stream.CipherAlgorithm, stream.CipherStrength));
-            logger.Debug(String.Format("Hash: {0} strength {1}", stream.HashAlgorithm, stream.HashStrength));
-            logger.Debug(String.Format("Key exchange: {0} strength {1}", stream.KeyExchangeAlgorithm, stream.KeyExchangeStrength));
-            logger.Debug(String.Format("Protocol: {0}", stream.SslProtocol));
+            logger.Debug(string.Format("Cipher: {0} strength {1}", stream.CipherAlgorithm, stream.CipherStrength));
+            logger.Debug(string.Format("Hash: {0} strength {1}", stream.HashAlgorithm, stream.HashStrength));
+            logger.Debug(string.Format("Key exchange: {0} strength {1}", stream.KeyExchangeAlgorithm, stream.KeyExchangeStrength));
+            logger.Debug(string.Format("Protocol: {0}", stream.SslProtocol));
         }
 
         private void DisplaySecurityServices(SslStream stream)
         {
-            logger.Debug(String.Format("Is authenticated: {0} as server? {1}", stream.IsAuthenticated, stream.IsServer));
-            logger.Debug(String.Format("IsSigned: {0}", stream.IsSigned));
-            logger.Debug(String.Format("Is Encrypted: {0}", stream.IsEncrypted));
+            logger.Debug(string.Format("Is authenticated: {0} as server? {1}", stream.IsAuthenticated, stream.IsServer));
+            logger.Debug(string.Format("IsSigned: {0}", stream.IsSigned));
+            logger.Debug(string.Format("Is Encrypted: {0}", stream.IsEncrypted));
         }
 
         private void DisplayStreamProperties(SslStream stream)
         {
-            logger.Debug(String.Format("Can read: {0}, write {1}", stream.CanRead, stream.CanWrite));
-            logger.Debug(String.Format("Can timeout: {0}", stream.CanTimeout));
+            logger.Debug(string.Format("Can read: {0}, write {1}", stream.CanRead, stream.CanWrite));
+            logger.Debug(string.Format("Can timeout: {0}", stream.CanTimeout));
         }
 
         private void DisplayCertificateInformation(SslStream stream)
         {
-            logger.Debug(String.Format("Certificate revocation list checked: {0}", stream.CheckCertRevocationStatus));
+            logger.Debug(string.Format("Certificate revocation list checked: {0}", stream.CheckCertRevocationStatus));
 
             X509Certificate localCertificate = stream.LocalCertificate;
             if (stream.LocalCertificate != null)
@@ -570,7 +548,7 @@ namespace GB28181.SIPSorcery.SIP
             }
             else
             {
-                logger.Warn(String.Format("Certificate error: {0}", sslPolicyErrors));
+                logger.Warn(string.Format("Certificate error: {0}", sslPolicyErrors));
                 return true;
             }
         }

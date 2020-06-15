@@ -1,14 +1,16 @@
-﻿using GB28181.Logger4Net;
-using GB28181.SIPSorcery.Net;
-using GB28181.SIPSorcery.Servers.SIPMessage;
-using GB28181.SIPSorcery.Sys;
-using GB28181.SIPSorcery.Sys.XML;
+﻿
+using GB28181.Logger4Net;
+using GB28181.Net;
+using GB28181.Servers.SIPMessage;
+using GB28181.Sys;
+using GB28181.Sys.XML;
+using SIPSorcery.SIP;
 using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
-namespace GB28181.SIPSorcery.Servers
+namespace GB28181.Servers
 {
     public class SIPServiceDirector : ISIPServiceDirector
     {
@@ -72,7 +74,7 @@ namespace GB28181.SIPSorcery.Servers
         /// <param name="mediaPort"></param>
         /// <param name="receiveIP"></param>
         /// <returns></returns>
-        async public Task<Tuple<string, int, GB28181.SIPSorcery.SIP.SIPHeader, ProtocolType>> RealVideoReq(string gbid, int[] mediaPort, string receiveIP)
+        async public Task<Tuple<string, int, GB28181.SIPHeader, ProtocolType>> RealVideoReq(string gbid, int[] mediaPort, string receiveIP)
         {
             logger.Debug("Make video request started.");
             var target = GetTargetMonitorService(gbid);
@@ -100,7 +102,7 @@ namespace GB28181.SIPSorcery.Servers
         /// <param name="mediaPort"></param>
         /// <param name="receiveIP"></param>
         /// <returns></returns>
-        async public Task<Tuple<string, int, GB28181.SIPSorcery.SIP.SIPHeader, ProtocolType>> BackVideoReq(string gbid, int[] mediaPort, string receiveIP, ulong beginTime, ulong endTime)
+        async public Task<Tuple<string, int, GB28181.SIPHeader, ProtocolType>> BackVideoReq(string gbid, int[] mediaPort, string receiveIP, ulong beginTime, ulong endTime)
         {
             logger.Debug("BackVideoReq started.");
             var target = GetTargetMonitorService(gbid);
@@ -203,7 +205,7 @@ namespace GB28181.SIPSorcery.Servers
         }
         #endregion
         #region 设备状态
-        private void _sipCoreMessageService_OnDeviceStatusReceived(SIP.SIPEndPoint arg1, DeviceStatus arg2)
+        private void _sipCoreMessageService_OnDeviceStatusReceived(SIPEndPoint arg1, DeviceStatus arg2)
         {
             if (!DeviceStatuses.ContainsKey(arg2.DeviceID))
             {
@@ -250,7 +252,7 @@ namespace GB28181.SIPSorcery.Servers
             return _sipCoreMessageService.RecordFileQuery(deviceId, startTime, endTime, type);
         }
 
-        async public Task<Tuple<string, int, GB28181.SIPSorcery.SIP.SIPHeader, ProtocolType>> VideoDownloadReq(DateTime beginTime, DateTime endTime, string gbid, int[] mediaPort, string receiveIP)
+        async public Task<Tuple<string, int, GB28181.SIPHeader, ProtocolType>> VideoDownloadReq(DateTime beginTime, DateTime endTime, string gbid, int[] mediaPort, string receiveIP)
         {
             logger.Debug("Video Download Request started.");
             var target = GetTargetMonitorService(gbid);

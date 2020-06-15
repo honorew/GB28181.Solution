@@ -8,7 +8,6 @@
 //
 // License: 
 // Aaron Clauson
-//-----------------------------------------------------------------------------
 
 using System;
 using System.Net;
@@ -17,7 +16,7 @@ using System.Net;
 using NUnit.Framework;
 #endif
 
-namespace GB28181.SIPSorcery.Net
+namespace GB28181.Net
 {
     //public class RTPReceiver
     //{

@@ -1,7 +1,8 @@
 ﻿
 using System.Collections.Generic;
+using SIPSorcery.SIP;
 
-namespace GB28181.SIPSorcery.SIP
+namespace GB28181
 {
     public interface ISIPTransport
     {

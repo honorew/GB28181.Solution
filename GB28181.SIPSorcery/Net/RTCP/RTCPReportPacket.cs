@@ -15,7 +15,6 @@
 //
 // License: 
 // Aaron Clauson
-//-----------------------------------------------------------------------------
 
 using System;
 
@@ -23,7 +22,7 @@ using System;
 using NUnit.Framework;
 #endif
 
-namespace GB28181.SIPSorcery.Net
+namespace GB28181.Net
 {
 	public class RTCPReportPacket
 	{
